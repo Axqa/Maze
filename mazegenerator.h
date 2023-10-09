@@ -4,6 +4,7 @@
 #include <QVector>
 #include <QList>
 #include <QObject>
+#include <random>
 
 class Cell
 {
@@ -12,6 +13,7 @@ public:
     bool is_wall;
     int cost;
     QList<Cell*> neighbs;
+    Cell *prev;
 
 public:
     Cell(int row, int col);
@@ -27,9 +29,19 @@ public:
     int n_col = 20;
     QVector<QVector<Cell*>> maze;
 
+private:
+    std::random_device rd;
+
 public:
     MazeGenerator();
 
+signals:
+    void generated();
+
+public slots:
+    void Generate();
+    void SetRowCount(int value);
+    void SetColCount(int value);
 private:
     void MakeBounds();
     void Reset();

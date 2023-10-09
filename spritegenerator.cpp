@@ -90,10 +90,10 @@ QPixmap* SpriteGenerator::GetSpriteForXY(int x, int y)
 {
     Cell *cell = mg->maze[y][x];
     if (cell->is_wall == false) {
-        int row = (((x *23) * (y * 17)) ^ x) % 8;
-        int col = (((y *23) * (x * 17)) ^ y) % 8;
-//        int row = rand() % 8;
-//        int col = rand() % 8;
+//        int row = (((x *23) * (y * 17)) ^ x) % 8;
+//        int col = (((y *23) * (x * 17)) ^ y) % 8;
+        int row = rand() % 8;
+        int col = rand() % 8;
 
         return new QPixmap(grass.copy(col * kSpriteWidth, row * kSpriteHeight, kSpriteWidth, kSpriteHeight));
     }

@@ -14,6 +14,8 @@ MazeView::MazeView(MazeGenerator *mg, QWidget *parent)
     setScene(scene);
 
     Reload();
+
+    connect(mg, &MazeGenerator::generated, this, &MazeView::Reload);
 }
 
 MazeView::~MazeView()

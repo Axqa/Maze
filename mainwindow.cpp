@@ -14,6 +14,9 @@ MainWindow::MainWindow(MazeGenerator *mg, QWidget *parent)
     auto layout = new QVBoxLayout();
     ui->widget->layout()->addWidget(mv);
 
+    connect(ui->gen_bt, SIGNAL(clicked()), mg, SLOT(Generate()));
+    connect(ui->n_col_le, &QLineEdit::editingFinished, mg, [&](){mg->SetColCount(ui->n_col_le->text().toInt());});
+    connect(ui->n_row_le, &QLineEdit::editingFinished, mg, [&](){mg->SetRowCount(ui->n_row_le->text().toInt());});
 //    ui->widget->setStyleSheet("background-color: red");
 }
 
