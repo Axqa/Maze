@@ -1,6 +1,8 @@
 #include "mazeview.h"
 #include <QDebug>
 #include <QMouseEvent>
+#include "soundmanager.h"
+
 MazeView::MazeView(MazeGenerator *mg, QWidget *parent)
     : QGraphicsView(parent)
     , mg(mg)
@@ -45,6 +47,13 @@ void MazeView::InvertCellAt(QPointF pos, bool ignore_state)
     state = !mg->maze[y][x]->is_wall;
 
     mg->maze[y][x]->is_wall = state;
+
+    if (state) {
+        SoundManager::Instance().WallSet();
+    } else {
+        SoundManager::Instance().WallClear();
+    }
+
     Reload();
 
 //    QGraphicsItem * gi = scene->itemAt(pos, QTransform());

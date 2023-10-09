@@ -4,8 +4,8 @@
 SpriteGenerator::SpriteGenerator(MazeGenerator *mg)
     : mg(mg)
 {
-    grass = QPixmap(":/sprites/grass.png");
-    stone = QPixmap(":/sprites/stone.png");
+    grass = QPixmap(":/assets/sprites/grass.png");
+    stone = QPixmap(":/assets/sprites/stone.png");
 
     bool env[3][3];
     for (int i = 0; i < 1<<9; ++i) {

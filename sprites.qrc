@@ -1,6 +1,6 @@
 <RCC>
     <qresource prefix="/">
-        <file>sprites/grass.png</file>
-        <file>sprites/stone.png</file>
+        <file>assets/sprites/grass.png</file>
+        <file>assets/sprites/stone.png</file>
     </qresource>
 </RCC>

@@ -1,4 +1,4 @@
-QT       += core gui
+QT       += core gui multimedia
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -20,12 +20,14 @@ SOURCES += \
     mainwindow.cpp \
     mazegenerator.cpp \
     mazeview.cpp \
+    soundmanager.cpp \
     spritegenerator.cpp
 
 HEADERS += \
     mainwindow.h \
     mazegenerator.h \
     mazeview.h \
+    soundmanager.h \
     spritegenerator.h
 
 FORMS += \
@@ -37,4 +39,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 RESOURCES += \
+  sounds.qrc \
   sprites.qrc

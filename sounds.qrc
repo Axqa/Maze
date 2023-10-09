@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/">
+        <file>assets/sounds/MI_SFX 05.wav</file>
+        <file>assets/sounds/MI_SFX 09.wav</file>
+        <file>assets/sounds/MI_SFX 15.wav</file>
+        <file>assets/sounds/MI_SFX 30.wav</file>
+        <file>assets/sounds/MI_SFX 36.wav</file>
+        <file>assets/sounds/MI_SFX 24.wav</file>
+    </qresource>
+</RCC>
