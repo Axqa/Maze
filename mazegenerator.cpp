@@ -14,26 +14,49 @@ MazeGenerator::MazeGenerator()
 
 void MazeGenerator::Generate()
 {
+//    strategy = GenStrategy::BFS;
+//    strategy = GenStrategy::RANDOM;
+    strategy = GenStrategy::DFS;
+
     Cell *cell;
     for (int i = 0; i < n_row; ++i) {
         for (int j = 0; j < n_col; ++j) {
             cell = maze[i][j];
             cell->is_wall = true;
             cell->prev = nullptr;
+            cell->straight_only = false;
         }
     }
     std::deque<Cell*> fringe;
-    fringe.push_back(maze[0][0]);
+    fringe.push_back(maze[1][1]);
 
     Cell *prev;
 
     std::vector<Cell*> next;
     int neigb_count, count = 0;
     bool need_to_be_wall = false;
+
+    decltype (fringe.begin()) it;
+
     while(fringe.size()) {
-        cell = fringe[0];
-        fringe.pop_front();
-        neigb_count = 0;
+        emit step();
+        switch (strategy) {
+        case GenStrategy::BFS:
+            cell = fringe[fringe.size() -1];
+            fringe.pop_back();
+            break;
+        case GenStrategy::RANDOM:
+            it = fringe.begin();
+            std::advance(it, rand() % fringe.size());
+            cell = *it;
+            fringe.erase(it);
+            break;
+        case GenStrategy::DFS:
+            cell = fringe[0];
+            fringe.pop_front();
+            break;
+        }
+
         need_to_be_wall = false;
         // check if we can destroy wall
         for (auto i : cell->neighbs) {
@@ -44,19 +67,28 @@ void MazeGenerator::Generate()
         }
         if (need_to_be_wall) continue;
 
+        neigb_count = 0;
         next.clear();
         std::sample(cell->neighbs.begin(), cell->neighbs.end(), std::back_inserter(next), cell->neighbs.size(),
                     std::mt19937{rd()});
         std::shuffle(next.begin(), next.end(),std::mt19937 {rd()});
+
+        auto dir = cell->prev ? cell->Direction(*cell->prev) : QPoint(0,0);
         // add all connected walls to fringe
         for (auto i : next) {
-            if (i->is_wall) {
-                fringe.push_front(i);
-                i->prev = cell;
+            if (i->is_wall && i->neighbs.size() > 3) {
+                if (cell->straight_only == false || i->pos() == cell->pos() + dir) {
+                    fringe.push_front(i);
+                    i->prev = cell;
+                    neigb_count++;
+                    if (cell->straight_only == false) {
+                        i->straight_only = true;
+                    }
+                }
             }
         }
-
-        cell->is_wall = false;
+//        if (neigb_count)
+            cell->is_wall = false;
         count++;
     }
 //    qDebug() << "generated";
@@ -131,4 +163,14 @@ Cell::Cell(int row, int col)
     cost = 1;
     neighbs.clear();
     prev = nullptr;
+}
+
+QPoint Cell::Direction(Cell &oth)
+{
+    return QPoint{col - oth.col, row - oth.row};
+}
+
+QPoint Cell::pos()
+{
+    return {col, row};
 }

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>717</width>
-    <height>602</height>
+    <width>722</width>
+    <height>622</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -41,11 +41,17 @@
     </item>
     <item row="0" column="1">
      <widget class="QWidget" name="widget_2" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
         <widget class="QWidget" name="widget_3" native="true">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -59,9 +65,27 @@
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="n_row_le">
+           <widget class="MyLineEdit" name="n_row_le">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>40</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true"/>
+            </property>
             <property name="text">
              <string>20</string>
+            </property>
+            <property name="clearButtonEnabled">
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -71,7 +95,7 @@
        <item>
         <widget class="QWidget" name="widget_4" native="true">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -91,7 +115,25 @@
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="n_col_le">
+           <widget class="MyLineEdit" name="n_col_le">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>40</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="focusPolicy">
+             <enum>Qt::StrongFocus</enum>
+            </property>
+            <property name="styleSheet">
+             <string notr="true"/>
+            </property>
             <property name="text">
              <string>20</string>
             </property>
@@ -101,7 +143,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="gen_bt">
+        <widget class="QPushButton" name="gen_btn">
          <property name="text">
           <string>Generate</string>
          </property>
@@ -130,13 +172,20 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>717</width>
+     <width>722</width>
      <height>25</height>
     </rect>
    </property>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>MyLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>mainwindow.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

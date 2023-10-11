@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include "mazegenerator.h"
 #include "mazeview.h"
+#include <QLineEdit>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -22,4 +23,15 @@ private:
     MazeView *mv;
     Ui::MainWindow *ui;
 };
+
+class MyLineEdit : public QLineEdit
+{
+    Q_OBJECT
+public:
+    MyLineEdit(QWidget *parent);
+    void focusInEvent(QFocusEvent *) override;
+
+};
+
+
 #endif // MAINWINDOW_H

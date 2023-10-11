@@ -2,6 +2,7 @@
 #include <QDebug>
 #include <QMouseEvent>
 #include "soundmanager.h"
+#include <QRectF>
 
 MazeView::MazeView(MazeGenerator *mg, QWidget *parent)
     : QGraphicsView(parent)
@@ -9,6 +10,9 @@ MazeView::MazeView(MazeGenerator *mg, QWidget *parent)
 {
     scene = new QGraphicsScene(this);
     scene->setBackgroundBrush(QBrush(QColor("#72751b")));
+    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
     InitSprites();
 
     setScene(scene);
@@ -80,6 +84,8 @@ void MazeView::Reload()
 
             scene->addItem(block);
             block->setPos(j*kBlockWidth, i*kBlockHeight);
+//            auto r = scene->addRect(block->boundingRect(), QPen(), QBrush(QColor(Qt::red)));
+//            r->setPos(block->pos());
         }
     }
 
@@ -96,12 +102,14 @@ void MazeView::Reload()
 //            block->setPos(j*kBlockWidth, i*kBlockHeight);
 //        }
 //    }
+    scene->setSceneRect(QRectF());
+    this->fitInView(0,0, mg->n_col*kBlockWidth, mg->n_row*kBlockHeight/*, Qt::KeepAspectRatio*/);
 }
 
 
 void MazeView::resizeEvent(QResizeEvent *event)
 {
-    this->fitInView(0,0, mg->n_col*kBlockWidth, mg->n_row*kBlockHeight);
+    this->fitInView(0,0, mg->n_col*kBlockWidth, mg->n_row*kBlockHeight/*, Qt::KeepAspectRatio*/);
     //    qDebug() << "aa" ;
 }
 
