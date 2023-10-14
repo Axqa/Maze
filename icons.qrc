@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/">
+        <file>assets/icons/chain_black.png</file>
+        <file>assets/icons/chain_color.png</file>
+        <file>assets/icons/left.png</file>
+        <file>assets/icons/most-left.png</file>
+        <file>assets/icons/most-right.png</file>
+        <file>assets/icons/right.png</file>
+    </qresource>
+</RCC>

@@ -24,6 +24,7 @@ SOURCES += \
     spritegenerator.cpp
 
 HEADERS += \
+    blocker.h \
     mainwindow.h \
     mazegenerator.h \
     mazeview.h \
@@ -39,5 +40,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 RESOURCES += \
+  icons.qrc \
   sounds.qrc \
   sprites.qrc

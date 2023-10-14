@@ -27,6 +27,16 @@ MazeView::~MazeView()
     delete sg;
 }
 
+void MazeView::setCurStep(int step)
+{
+    cur_step = step;
+}
+
+void MazeView::setMaxStep(int step)
+{
+    max_step = step;
+}
+
 void MazeView::InitSprites()
 {
     sg = new SpriteGenerator(mg);
@@ -39,10 +49,12 @@ void MazeView::InitSprites()
 
 void MazeView::InvertCellAt(QPointF pos, bool ignore_state)
 {
+    if (cur_step != max_step) return;
+
     int x = pos.x() / kBlockWidth;
     int y = pos.y() / kBlockHeight;
 
-    if (x < 0 || x >= mg->n_row || y < 0 || y >= mg->n_col) {
+    if (x < 0 || y >= mg->n_row || y < 0 || x >= mg->n_col) {
         return;
     }
 
@@ -79,30 +91,103 @@ void MazeView::Reload()
 
     for (int i = 0; i < mg->n_row; ++i) {
         for (int j = 0; j < mg->n_col; ++j) {
-//            auto cell = mg->maze[i][j];
             QGraphicsItem *block = new CellView(sg->GetSpriteForXY(j,i));
 
             scene->addItem(block);
             block->setPos(j*kBlockWidth, i*kBlockHeight);
-//            auto r = scene->addRect(block->boundingRect(), QPen(), QBrush(QColor(Qt::red)));
-//            r->setPos(block->pos());
         }
     }
 
-//    for (int i = 0; i < mg->n_row; ++i) {
-//        for (int j = 0; j < mg->n_col; ++j) {
-//            auto cell = mg->maze[i][j];
-//            QGraphicsItem *block;
-//            if (cell->is_wall) {
-//                block = new QGraphicsPixmapItem(stone);
-//            } else {
-//                block = new QGraphicsPixmapItem(grass);
-//            }
-//            scene->addItem(block);
-//            block->setPos(j*kBlockWidth, i*kBlockHeight);
-//        }
-//    }
     scene->setSceneRect(QRectF());
+    this->fitInView(0,0, mg->n_col*kBlockWidth, mg->n_row*kBlockHeight/*, Qt::KeepAspectRatio*/);
+}
+
+void MazeView::IncStep(bool ignore_update)
+{
+    if (cur_step >= max_step) return;
+    auto next_el = mg->last_step = mg->last_step + 1;
+    mg->maze_step[next_el->next->row][next_el->next->col] = false;
+    cur_fringe = next_el->fringe;
+    cur_step = cur_step + 1;
+
+    if (ignore_update == false) {
+        UpdateStep();
+    }
+}
+
+void MazeView::DecStep(bool ignore_update)
+{
+    if (cur_step <= 0) return;
+    if (cur_step == 1) {
+    int r = 0;
+    Q_UNUSED(r);
+    //        cur_fringe = QList<Cell*>();
+
+    }
+
+    auto next_el = mg->last_step;
+    mg->maze_step[next_el->next->row][next_el->next->col] = true;
+    cur_fringe = next_el->fringe;
+    cur_step = cur_step - 1;
+    mg->last_step = next_el - 1;
+
+    if (ignore_update == false) {
+        UpdateStep();
+    }
+}
+
+void MazeView::ToStep(int step)
+{
+    while (cur_step != step) {
+        if (cur_step < step) {
+            IncStep(true);
+        } else {
+            DecStep(true);
+        }
+    }
+
+    UpdateStep();
+}
+
+void MazeView::UpdateStep()
+{
+    if (cur_step == max_step) {
+        Reload();
+        return;
+    }
+
+    scene->clear();
+
+    for (int i = 0; i < mg->n_row; ++i) {
+        for (int j = 0; j < mg->n_col; ++j) {
+            QGraphicsItem *block = new CellView(mg->maze_step[i][j] ? sg->GetStoneSpriteForStep(j,i) : sg->GetGrassSprite(j,i));
+
+            scene->addItem(block);
+            block->setPos(j*kBlockWidth, i*kBlockHeight);
+        }
+    }
+
+
+    if (cur_step != 0) {
+        for (auto i = mg->last_step->fringe.begin(); i < mg->last_step->fringe.end(); i++) {
+            auto pos = (*i)->pos();
+            int count = 0;
+            for (auto n : mg->maze[pos.y()][pos.x()]->neighbs) {
+                if (mg->maze_step[n->row][n->col] == false)
+                    count++;
+            }
+            if (count > 1) {
+
+            } else {
+                scene->addRect(pos.x() * kBlockWidth + 2, pos.y() * kBlockHeight + 2, kBlockWidth-4, kBlockHeight-4, QPen(), QBrush(QColor(Qt::yellow)));
+            }
+        }
+        auto pos = mg->last_step->next->pos();
+        scene->addRect(pos.x() * kBlockWidth + 2, pos.y() * kBlockHeight + 2, kBlockWidth-4, kBlockHeight-4, QPen(), QBrush(QColor(Qt::blue)));
+
+    }
+
+//    scene->setSceneRect(QRectF());
     this->fitInView(0,0, mg->n_col*kBlockWidth, mg->n_row*kBlockHeight/*, Qt::KeepAspectRatio*/);
 }
 

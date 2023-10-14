@@ -18,12 +18,19 @@ class MazeView : public QGraphicsView
 public:
     MazeView(MazeGenerator *mg, QWidget *parent = nullptr);
     ~MazeView();
+
+    void setCurStep(int step);
+    void setMaxStep(int step);
 private:
     void InitSprites();
     void InvertCellAt(QPointF pos, bool ignore_state = true);
 
 public slots:
     void Reload();
+    void IncStep(bool ignore_update = false);
+    void DecStep(bool ignore_update = false);
+    void ToStep(int step);
+    void UpdateStep();
     void resizeEvent(QResizeEvent *event) override;
 
     void mousePressEvent(QMouseEvent *event) override;
@@ -36,7 +43,10 @@ private:
     QPixmap grass, stone;
 
     bool state;
+    int cur_step;
+    int max_step;
 
+    QList<Cell*> cur_fringe;
 };
 
 class CellView : public QObject, public QGraphicsPixmapItem

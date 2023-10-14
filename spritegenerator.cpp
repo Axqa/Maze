@@ -90,15 +90,32 @@ QPixmap* SpriteGenerator::GetSpriteForXY(int x, int y)
 {
     Cell *cell = mg->maze[y][x];
     if (cell->is_wall == false) {
-//        int row = (((x *23) * (y * 17)) ^ x) % 8;
-//        int col = (((y *23) * (x * 17)) ^ y) % 8;
-        int row = rand() % 8;
-        int col = rand() % 8;
-
-        return new QPixmap(grass.copy(col * kSpriteWidth, row * kSpriteHeight, kSpriteWidth, kSpriteHeight));
+        return GetGrassSprite(x,y);
     }
 
 
+    return GetStoneSprite(x,y);
+}
+
+QPixmap *SpriteGenerator::GetGrassSprite(int x, int y)
+{
+//        std::random_device dev;
+//        std::mt19937 rng(dev());
+    std::mt19937 rng_row(y*8 + x);
+    std::mt19937 rng_col(x*8 + y);
+    std::uniform_int_distribution<std::mt19937::result_type> rand_gen(0, 7);
+
+
+    int row = rand_gen(rng_row);
+    int col = rand_gen(rng_col);
+//        int row = (y * 8 + x) % 8;
+//        int col = (x * 8 + y) % 8;
+
+    return new QPixmap(grass.copy(col * kSpriteWidth, row * kSpriteHeight, kSpriteWidth, kSpriteHeight));
+}
+
+QPixmap *SpriteGenerator::GetStoneSprite(int x, int y)
+{
     bool env[3][3];
     int pos = 0, dig = 0;
     bool cur;
@@ -106,6 +123,25 @@ QPixmap* SpriteGenerator::GetSpriteForXY(int x, int y)
         for (int c = x-1; c < x+2; ++c) {
             cur = (r>=0 && r < mg->n_row && c>=0 && c<mg->n_col)
                     && mg->maze[r][c]->is_wall;
+            env[r - y + 1][c - x + 1] = cur;
+            pos |= cur << dig++;
+        }
+    }
+
+    auto x_y = env_to_pos[pos];
+
+    return new QPixmap(stone.copy(x_y.first*kSpriteWidth,x_y.second*kSpriteHeight,kSpriteWidth,kSpriteHeight));
+}
+
+QPixmap *SpriteGenerator::GetStoneSpriteForStep(int x, int y)
+{
+    bool env[3][3];
+    int pos = 0, dig = 0;
+    bool cur;
+    for (int r = y-1; r < y+2; r++) {
+        for (int c = x-1; c < x+2; ++c) {
+            cur = (r>=0 && r < mg->n_row && c>=0 && c<mg->n_col)
+                    && mg->maze_step[r][c];
             env[r - y + 1][c - x + 1] = cur;
             pos |= cur << dig++;
         }

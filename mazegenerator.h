@@ -7,6 +7,8 @@
 #include <random>
 #include <QPoint>
 
+class GenStep;
+
 enum class GenStrategy {
     BFS,
     RANDOM,
@@ -36,15 +38,18 @@ class MazeGenerator : public QObject
     Q_OBJECT
 
 public:
-    int n_row = 20;
-    int n_col = 20;
+    int n_row = 21;
+    int n_col = 21;
     QVector<QVector<Cell*>> maze;
+    std::vector<std::vector<bool>> maze_step;
 
-    GenStrategy strategy;
+    GenStrategy strategy = GenStrategy::DFS;
 
+    QList<GenStep> steps;
+    decltype (steps.begin()) last_step;
 private:
     std::random_device rd;
-
+    bool bindSizes = false;
 public:
     MazeGenerator();
 
@@ -55,10 +60,17 @@ public slots:
     void Generate();
     void SetRowCount(int value);
     void SetColCount(int value);
+    void SetBindSizes(bool bind);
 private:
     void MakeBounds();
     void Reset();
     void Clear();
+};
+
+struct GenStep
+{
+    QList<Cell*> fringe;
+    Cell* next;
 };
 
 #endif // MAZEGENERATOR_H

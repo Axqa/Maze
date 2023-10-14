@@ -16,7 +16,9 @@ void MazeGenerator::Generate()
 {
 //    strategy = GenStrategy::BFS;
 //    strategy = GenStrategy::RANDOM;
-    strategy = GenStrategy::DFS;
+//    strategy = GenStrategy::DFS;
+
+    steps.clear();
 
     Cell *cell;
     for (int i = 0; i < n_row; ++i) {
@@ -25,6 +27,8 @@ void MazeGenerator::Generate()
             cell->is_wall = true;
             cell->prev = nullptr;
             cell->straight_only = false;
+
+            maze_step[i][j] = true;
         }
     }
     std::deque<Cell*> fringe;
@@ -87,16 +91,25 @@ void MazeGenerator::Generate()
                 }
             }
         }
-//        if (neigb_count)
-            cell->is_wall = false;
+
+        cell->is_wall = false;
+        maze_step[cell->row][cell->col] = false;
+
+        QList<Cell*> cur_fringe;
+        std::copy(fringe.begin(), fringe.end(), std::back_inserter(cur_fringe));
+        steps << GenStep{cur_fringe, cell};
         count++;
     }
+    last_step = steps.end() - 1;
 //    qDebug() << "generated";
     emit generated();
 }
 
 void MazeGenerator::SetRowCount(int value)
 {
+    if (bindSizes) {
+        n_col = n_col + (value - n_row);
+    }
     n_row = value;
     Reset();
     emit generated();
@@ -104,10 +117,18 @@ void MazeGenerator::SetRowCount(int value)
 
 void MazeGenerator::SetColCount(int value)
 {
+    if (bindSizes) {
+        n_row = n_row + (value - n_col);
+    }
     n_col = value;
     Reset();
     emit generated();
 
+}
+
+void MazeGenerator::SetBindSizes(bool bind)
+{
+    bindSizes = bind;
 }
 
 void MazeGenerator::MakeBounds()
@@ -131,6 +152,8 @@ void MazeGenerator::Reset()
             row.push_back(new Cell(i, j));
         }
         maze.push_back(row);
+        std::vector<bool> s_row(n_col, 1);
+        maze_step.push_back(s_row);
     }
 
     for (int i = 0; i < n_row; ++i) {
@@ -143,6 +166,8 @@ void MazeGenerator::Reset()
         }
     }
 
+    steps.clear();
+
 }
 
 void MazeGenerator::Clear()
@@ -154,6 +179,7 @@ void MazeGenerator::Clear()
     }
 
     maze.clear();
+    maze_step.clear();
 }
 
 Cell::Cell(int row, int col)

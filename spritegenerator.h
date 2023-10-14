@@ -16,6 +16,11 @@ public:
     SpriteGenerator(MazeGenerator *mg);
 
     QPixmap* GetSpriteForXY(int x, int y);
+
+    QPixmap* GetGrassSprite(int x, int y);
+    QPixmap* GetStoneSprite(int x, int y);
+    QPixmap* GetStoneSpriteForStep(int x, int y);
+
 private:
     MazeGenerator *mg;
 
