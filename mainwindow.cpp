@@ -38,6 +38,12 @@ MainWindow::MainWindow(MazeGenerator *mg, QWidget *parent)
     connect(ui->most_right_btn, &QPushButton::clicked, [&](){StepChange(mg->steps.size());});
     connect(ui->left_btn, &QPushButton::clicked, [&](){StepChange(cur_step-1);});
     connect(ui->most_left_btn, &QPushButton::clicked, [&](){StepChange(0);});
+
+    connect(ui->play_btn, &PlayButton::playing, this, &MainWindow::StartMazeTimer);
+    connect(ui->play_btn, &PlayButton::paused, this, &MainWindow::PauseTimer);
+    connect(&maze_timer, &QTimer::timeout, this, &MainWindow::OnMazeTimerStep);
+
+    maze_timer.setSingleShot(true);
 //    ui->widget->setStyleSheet("background-color: red");
 
 //    connect(ui->n_col_le, &QLineEdit::e)
@@ -49,6 +55,16 @@ MainWindow::~MainWindow()
 {
     delete ui;
     delete mv;
+}
+
+void MainWindow::StartMazeTimer()
+{
+    if (cur_step >= mg->steps.size()) {
+        whileBlocking(ui->play_btn)->Pause();
+        return;
+    }
+
+    maze_timer.start(timer_msec);
 }
 
 void MainWindow::OnGenerate()
@@ -94,6 +110,22 @@ void MainWindow::StepChange(int step)
     mv->ToStep(step);
 }
 
+void MainWindow::OnMazeTimerStep()
+{
+    if (cur_step < mg->steps.size()) {
+        StepChange(cur_step + 1);
+    }
+
+    StartMazeTimer();
+}
+
+void MainWindow::PauseTimer()
+{
+    if (maze_timer.isActive()) {
+        maze_timer.stop();
+    }
+}
+
 
 
 MyLineEdit::MyLineEdit(QWidget *parent)
@@ -127,4 +159,36 @@ void BindLabel::mousePressEvent(QMouseEvent *ev)
         this->setPixmap(unbind_img);
     }
     emit changeBind(binded);
+}
+
+PlayButton::PlayButton(QWidget *parent)
+{
+    play_img = QPixmap(":/assets/icons/play.png");
+    pause_img = QPixmap(":/assets/icons/pause.png");
+
+    connect(this, &QPushButton::pressed, this, &PlayButton::onClick);
+}
+
+void PlayButton::onClick()
+{
+    if (is_playing) {
+        Pause();
+    } else {
+        Play();
+    }
+}
+
+void PlayButton::Play()
+{
+    is_playing = true;
+    setIcon(QIcon(pause_img));
+    emit playing();
+}
+
+void PlayButton::Pause()
+{
+    is_playing = false;
+    setIcon(QIcon(play_img));
+    emit paused();
+
 }

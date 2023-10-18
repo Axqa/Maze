@@ -6,7 +6,9 @@
 #include "mazeview.h"
 #include <QLineEdit>
 #include <QSpinBox>
+#include <QPushButton>
 #include <QLabel>
+#include <QTimer>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -20,11 +22,13 @@ public:
     MainWindow(MazeGenerator *mg, QWidget *parent = nullptr);
     ~MainWindow();
 
+private:
+    void StartMazeTimer();
 public slots:
     void OnGenerate();
     void StepChange(int step);
-private slots:
-    void on_most_left_btn_clicked();
+    void OnMazeTimerStep();
+    void PauseTimer();
 
 private:
     MazeGenerator *mg;
@@ -34,6 +38,9 @@ private:
     int n_col, n_row;
 
     int cur_step = 0;
+
+    QTimer maze_timer;
+    int timer_msec = 50;
 };
 
 class MyLineEdit : public QSpinBox
@@ -58,6 +65,27 @@ private:
     void mousePressEvent(QMouseEvent *ev) override;
 signals:
     void changeBind(bool isBinded);
+};
+
+class PlayButton : public QPushButton
+{
+    Q_OBJECT
+private:
+    QPixmap play_img, pause_img;
+    bool is_playing = false;
+public:
+    PlayButton(QWidget *parent=nullptr);
+
+private:
+    void onClick();
+
+public slots:
+    void Play();
+    void Pause();
+
+signals:
+    void playing();
+    void paused();
 };
 
 #endif // MAINWINDOW_H

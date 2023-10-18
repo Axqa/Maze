@@ -40,6 +40,12 @@ void MazeGenerator::Generate()
     int neigb_count, count = 0;
     bool need_to_be_wall = false;
 
+    static int gen_count = 0;
+//    std::random_device rd{};
+//    std::mt19937 gen{rd()};
+    std::mt19937 gen(gen_count++);
+    std::normal_distribution d;
+    double rnd;
     decltype (fringe.begin()) it;
 
     while(fringe.size()) {
@@ -50,8 +56,14 @@ void MazeGenerator::Generate()
             fringe.pop_back();
             break;
         case GenStrategy::RANDOM:
+            d = std::normal_distribution(0.0, sqrt(fringe.size()));
             it = fringe.begin();
-            std::advance(it, rand() % fringe.size());
+            do {
+                rnd = std::round(d(gen));
+            } while (rnd < 0);
+            rnd = std::max(std::min(rnd, (double)fringe.size()-1),0.0);
+            std::advance(it, (int)rnd);
+//            std::advance(it, rand() % fringe.size());
             cell = *it;
             fringe.erase(it);
             break;

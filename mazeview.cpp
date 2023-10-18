@@ -207,6 +207,11 @@ void MazeView::mousePressEvent(QMouseEvent *event)
     //    event->ignore();
 }
 
+void MazeView::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    mousePressEvent(event);
+}
+
 void MazeView::mouseMoveEvent(QMouseEvent *event)
 {
     auto pos = mapToScene(event->pos());
