@@ -75,6 +75,16 @@ void PathFinder::SetPoint(QPoint pos, Qt::MouseButton button)
     }
 }
 
+void PathFinder::ResetPoints()
+{
+    start_cell = nullptr;
+    end_cell = nullptr;
+    path.clear();
+
+
+    emit changed();
+}
+
 void LinePather::FindPath()
 {
     Cell *cell = start_cell, *next;

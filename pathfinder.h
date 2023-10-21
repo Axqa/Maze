@@ -22,6 +22,7 @@ private:
 public slots:
     void MakePath();
     void SetPoint(QPoint pos, Qt::MouseButton button);
+    void ResetPoints();
 
 public:
     MazeGenerator *mg;

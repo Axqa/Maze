@@ -54,6 +54,9 @@ MainWindow::MainWindow(MazeGenerator *mg, QWidget *parent)
 
     connect(mv, &MazeView::pathCellClicked, pf, &PathFinder::SetPoint);
     connect(pf, &PathFinder::changed, mv, &MazeView::UpdatePathMode);
+
+    connect(mg, &MazeGenerator::generated, pf, &PathFinder::ResetPoints);
+
     maze_timer.setSingleShot(true);
 //    ui->widget->setStyleSheet("background-color: red");
 
