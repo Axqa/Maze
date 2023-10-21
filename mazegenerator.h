@@ -30,6 +30,8 @@ public:
     Cell(int row, int col);
     QPoint Direction(Cell &oth);
     QPoint pos();
+    int ManhattanDist(Cell &oth);
+    int SquaredDist(Cell &oth);
 };
 
 

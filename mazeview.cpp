@@ -4,9 +4,10 @@
 #include "soundmanager.h"
 #include <QRectF>
 
-MazeView::MazeView(MazeGenerator *mg, QWidget *parent)
+MazeView::MazeView(MazeGenerator *mg, PathFinder *pf, QWidget *parent)
     : QGraphicsView(parent)
     , mg(mg)
+    , pf(pf)
 {
     scene = new QGraphicsScene(this);
     scene->setBackgroundBrush(QBrush(QColor("#72751b")));
@@ -20,6 +21,7 @@ MazeView::MazeView(MazeGenerator *mg, QWidget *parent)
     Reload();
 
     connect(mg, &MazeGenerator::generated, this, &MazeView::Reload);
+
 }
 
 MazeView::~MazeView()
@@ -171,24 +173,53 @@ void MazeView::UpdateStep()
     if (cur_step != 0) {
         for (auto i = mg->last_step->fringe.begin(); i < mg->last_step->fringe.end(); i++) {
             auto pos = (*i)->pos();
-            int count = 0;
-            for (auto n : mg->maze[pos.y()][pos.x()]->neighbs) {
-                if (mg->maze_step[n->row][n->col] == false)
-                    count++;
-            }
-            if (count > 1) {
-
-            } else {
                 scene->addRect(pos.x() * kBlockWidth + 2, pos.y() * kBlockHeight + 2, kBlockWidth-4, kBlockHeight-4, QPen(), QBrush(QColor(Qt::yellow)));
-            }
         }
         auto pos = mg->last_step->next->pos();
         scene->addRect(pos.x() * kBlockWidth + 2, pos.y() * kBlockHeight + 2, kBlockWidth-4, kBlockHeight-4, QPen(), QBrush(QColor(Qt::blue)));
 
     }
 
-//    scene->setSceneRect(QRectF());
     this->fitInView(0,0, mg->n_col*kBlockWidth, mg->n_row*kBlockHeight/*, Qt::KeepAspectRatio*/);
+}
+
+void MazeView::UpdatePathMode()
+{
+    Reload();
+
+
+    auto start = pf->start_cell;
+    auto end = pf->end_cell;
+
+    if (true) {
+        QList<QPointF> points;
+        for (auto cell : pf->path) {
+            points << cell->pos() * kBlockWidth;
+        }
+
+        auto item = new ConnectedLines(points);
+        scene->addItem(item);
+        item->setPos({kBlockWidth/2, kBlockHeight/2});
+
+    }
+
+    if (start) {
+        scene->addEllipse(start->col*kBlockWidth + kObjWidthOffset,
+                          start->row*kBlockHeight + kObjHeightOffset,
+                          kObjWidth, kObjHeight,
+                          QPen(),
+                          QBrush(kPathStartColor));
+    }
+
+    if (end) {
+        scene->addEllipse(end->col*kBlockWidth + kObjWidthOffset,
+                          end->row*kBlockHeight + kObjHeightOffset,
+                          kObjWidth, kObjHeight,
+                          QPen(),
+                          QBrush(kPathEndColor));
+
+    }
+    update();
 }
 
 
@@ -201,10 +232,25 @@ void MazeView::resizeEvent(QResizeEvent *event)
 void MazeView::mousePressEvent(QMouseEvent *event)
 {
     auto pos = mapToScene(event->pos());
+    int x = pos.x() / kBlockWidth;
+    int y = pos.y() / kBlockHeight;
+    emit cellClicked({x,y}, event->button());
 
-    InvertCellAt(pos);
-//    Reload();
-    //    event->ignore();
+    switch (mode) {
+    case Mode::GENERATE:
+
+        InvertCellAt(pos);
+        QGraphicsView::mousePressEvent(event);
+        break;
+
+    case Mode::PATH_FINDER:
+        emit pathCellClicked({x,y}, event->button());
+        break;
+
+    default:
+        break;
+    }
+
 }
 
 void MazeView::mouseDoubleClickEvent(QMouseEvent *event)
@@ -215,7 +261,37 @@ void MazeView::mouseDoubleClickEvent(QMouseEvent *event)
 void MazeView::mouseMoveEvent(QMouseEvent *event)
 {
     auto pos = mapToScene(event->pos());
-    InvertCellAt(pos, false);
+    switch (mode) {
+    case Mode::GENERATE:
+        InvertCellAt(pos, false);
+        break;
+
+    case Mode::PATH_FINDER:
+        break;
+
+    default:
+        break;
+    }
+}
+
+void MazeView::setMode(Mode mode)
+{
+    this->mode = mode;
+
+    switch (mode) {
+    case Mode::GENERATE:
+        Reload();
+        break;
+
+    case Mode::PATH_FINDER:
+        pf->MakePath();
+        UpdatePathMode();
+        break;
+
+    default:
+        break;
+
+    }
 }
 
 CellView::CellView(QPixmap *pixmap, QGraphicsItem *parent)
@@ -223,7 +299,8 @@ CellView::CellView(QPixmap *pixmap, QGraphicsItem *parent)
     , pixmap(pixmap)
 {
     setAcceptedMouseButtons(Qt::MouseButton::RightButton);
-
+    setFlags(QGraphicsItem::ItemIsSelectable|
+                      QGraphicsItem::ItemIsMovable);
 }
 
 void CellView::ChangeSprite(QPixmap *pixmap)
@@ -240,5 +317,55 @@ CellView::~CellView()
 
 void CellView::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
+//    qDebug() << "mouse press" << event;
+}
+
+ConnectedLines::ConnectedLines(QList<QPointF> points)
+    : points(std::move(points))
+{
+    if (!points.isEmpty()) {
+            qreal minX = this->points.first().x();
+            qreal minY = this->points.first().y();
+            qreal maxX = this->points.first().x();
+            qreal maxY = this->points.first().y();
+
+            for (const QPointF& point : this->points) {
+                minX = qMin(minX, point.x());
+                minY = qMin(minY, point.y());
+                maxX = qMax(maxX, point.x());
+                maxY = qMax(maxY, point.y());
+            }
+
+            b_rect = QRectF(QPointF(minX, minY), QPointF(maxX, maxY));
+        }
+}
+
+QRectF ConnectedLines::boundingRect() const
+{
+    return b_rect;
+}
+
+void ConnectedLines::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    if (points.size() == 0) return;
+
+    QPen pen;
+    QColor col = Qt::red;
+    col.setAlphaF(0.7);
+    pen.setColor(col);
+    pen.setWidth(8);
+//    pen.setStyle(Qt::DashLine);
+    pen.setCapStyle(Qt::RoundCap);
+    pen.setJoinStyle(Qt::RoundJoin);
+    painter->setPen(pen);
+
+    QPainterPath path;
+    path.moveTo(points[0]);
+
+    for (auto i : points) {
+        path.lineTo(i);
+    }
+
+    painter->drawPath(path);
 
 }

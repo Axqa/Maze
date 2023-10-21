@@ -20,6 +20,7 @@ SOURCES += \
     mainwindow.cpp \
     mazegenerator.cpp \
     mazeview.cpp \
+    pathfinder.cpp \
     soundmanager.cpp \
     spritegenerator.cpp
 
@@ -28,6 +29,7 @@ HEADERS += \
     mainwindow.h \
     mazegenerator.h \
     mazeview.h \
+    pathfinder.h \
     soundmanager.h \
     spritegenerator.h
 

@@ -9,10 +9,14 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QTimer>
+#include <QElapsedTimer>
+#include "pathfinder.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
+
+
 
 class MainWindow : public QMainWindow
 {
@@ -22,6 +26,8 @@ public:
     MainWindow(MazeGenerator *mg, QWidget *parent = nullptr);
     ~MainWindow();
 
+    void paintEvent(QPaintEvent* event) override;
+
 private:
     void StartMazeTimer();
 public slots:
@@ -29,10 +35,13 @@ public slots:
     void StepChange(int step);
     void OnMazeTimerStep();
     void PauseTimer();
+    void ToFindPage();
+    void ToGenPage();
 
 private:
     MazeGenerator *mg;
     MazeView *mv;
+    PathFinder *pf;
     Ui::MainWindow *ui;
     bool bindSizes = false;
     int n_col, n_row;
@@ -40,7 +49,14 @@ private:
     int cur_step = 0;
 
     QTimer maze_timer;
+    QElapsedTimer fps_timer;
     int timer_msec = 50;
+
+    Mode mode = Mode::GENERATE;
+
+    std::vector<qint64> time_for_frames;
+    int kTimeFramesSize = 20;
+    int curTimeFrameIdx = 0;
 };
 
 class MyLineEdit : public QSpinBox

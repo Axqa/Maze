@@ -108,7 +108,12 @@ void MazeGenerator::Generate()
         maze_step[cell->row][cell->col] = false;
 
         QList<Cell*> cur_fringe;
-        std::copy(fringe.begin(), fringe.end(), std::back_inserter(cur_fringe));
+        std::copy_if(fringe.begin(), fringe.end(), std::back_inserter(cur_fringe),
+                     [&](Cell* cell) {
+            return std::count_if(cell->neighbs.begin(), cell->neighbs.end(), [&](Cell *neighb) {
+                return maze_step[neighb->row][neighb->col] == false ;
+            }) <= 1;
+        });
         steps << GenStep{cur_fringe, cell};
         count++;
     }
@@ -211,4 +216,14 @@ QPoint Cell::Direction(Cell &oth)
 QPoint Cell::pos()
 {
     return {col, row};
+}
+
+int Cell::ManhattanDist(Cell &oth)
+{
+    return abs(row - oth.row) + abs(col - oth.col);
+}
+
+int Cell::SquaredDist(Cell &oth)
+{
+    return (row - oth.row) *(row - oth.row)  + (col - oth.col) * (col - oth.col);
 }
