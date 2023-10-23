@@ -57,6 +57,10 @@ public slots:
 signals:
     void cellClicked(QPoint pos, Qt::MouseButton button);
     void pathCellClicked(QPoint pos, Qt::MouseButton button);
+    void sceneTimeChanged(qint64 time);
+
+public:
+    qint64 scene_time;
 private:
     MazeGenerator *mg;
     QGraphicsScene *scene;
@@ -72,6 +76,7 @@ private:
     QList<Cell*> cur_fringe;
 
     Mode mode = Mode::GENERATE;
+    QElapsedTimer timer;
 };
 
 class CellView : public QObject, public QGraphicsPixmapItem

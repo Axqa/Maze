@@ -30,6 +30,8 @@ public:
 
 private:
     void StartMazeTimer();
+    void ResetMaze();
+
 public slots:
     void OnGenerate();
     void StepChange(int step);

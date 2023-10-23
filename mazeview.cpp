@@ -89,6 +89,7 @@ void MazeView::InvertCellAt(QPointF pos, bool ignore_state)
 
 void MazeView::Reload()
 {
+    timer.start();
     scene->clear();
 
     for (int i = 0; i < mg->n_row; ++i) {
@@ -102,6 +103,8 @@ void MazeView::Reload()
 
     scene->setSceneRect(QRectF());
     this->fitInView(0,0, mg->n_col*kBlockWidth, mg->n_row*kBlockHeight/*, Qt::KeepAspectRatio*/);
+    scene_time = timer.nsecsElapsed();
+    emit sceneTimeChanged(scene_time);
 }
 
 void MazeView::IncStep(bool ignore_update)
@@ -158,6 +161,7 @@ void MazeView::UpdateStep()
         return;
     }
 
+    timer.start();
     scene->clear();
 
     for (int i = 0; i < mg->n_row; ++i) {
@@ -181,6 +185,9 @@ void MazeView::UpdateStep()
     }
 
     this->fitInView(0,0, mg->n_col*kBlockWidth, mg->n_row*kBlockHeight/*, Qt::KeepAspectRatio*/);
+    scene_time = timer.nsecsElapsed();
+    emit sceneTimeChanged(scene_time);
+
 }
 
 void MazeView::UpdatePathMode()

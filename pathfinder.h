@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <map>
 #include <unordered_map>
+#include <QElapsedTimer>
 
 class PathFinder : public QObject
 {
@@ -33,9 +34,14 @@ public:
 
     QList<Cell*> path;
 
+private:
+    QElapsedTimer timer;
+    qint64 find_path_time;
+
 signals:
     void changed();
     void pathChanged();
+    void pathTimeChanged(qint64 time);
 };
 
 class LinePather : public PathFinder

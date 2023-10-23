@@ -18,6 +18,8 @@ void MazeGenerator::Generate()
 //    strategy = GenStrategy::RANDOM;
 //    strategy = GenStrategy::DFS;
 
+    timer.start();
+
     steps.clear();
 
     Cell *cell;
@@ -118,6 +120,7 @@ void MazeGenerator::Generate()
         count++;
     }
     last_step = steps.end() - 1;
+    gen_time = timer.nsecsElapsed();
 //    qDebug() << "generated";
     emit generated();
 }
@@ -139,7 +142,7 @@ void MazeGenerator::SetColCount(int value)
     }
     n_col = value;
     Reset();
-    emit generated();
+//    emit generated();
 
 }
 

@@ -7,7 +7,7 @@
 #include <random>
 #include <QPoint>
 #include <QElapsedTimer>
-class GenStep;
+struct GenStep;
 
 enum class GenStrategy {
     BFS,

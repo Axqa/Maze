@@ -54,6 +54,7 @@ void PathFinder::SetEndPoint(QPoint pos)
 
 void PathFinder::MakePath()
 {
+    timer.start();
     path.clear();
     success = false;
 
@@ -62,10 +63,18 @@ void PathFinder::MakePath()
     }
 
     FindPath();
+    find_path_time = timer.nsecsElapsed();
+    emit pathTimeChanged(find_path_time);
 }
 
 void PathFinder::SetPoint(QPoint pos, Qt::MouseButton button)
 {
+    int x = pos.x();
+    int y = pos.y();
+
+    if (x < 0 || y >= mg->n_row || y < 0 || x >= mg->n_col) {
+        return;
+    }
     if (button == Qt::MouseButton::LeftButton) {
         SetStartPoint(pos);
     }
@@ -80,7 +89,6 @@ void PathFinder::ResetPoints()
     start_cell = nullptr;
     end_cell = nullptr;
     path.clear();
-
 
     emit changed();
 }
@@ -167,6 +175,5 @@ void AStarFinder::FindPath()
     }
     path.push_front(cell); // start_cell
 
-    emit pathChanged();
 
 }

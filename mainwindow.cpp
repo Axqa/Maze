@@ -29,8 +29,8 @@ MainWindow::MainWindow(MazeGenerator *mg, QWidget *parent)
     connect(ui->n_row_le, &QSpinBox::textChanged, [&](){mg->SetRowCount(ui->n_row_le->text().toInt());});
     connect(ui->bind_lbl, &BindLabel::changeBind, mg, &MazeGenerator::SetBindSizes);
     connect(ui->bind_lbl, &BindLabel::changeBind, [&](bool bind){bindSizes = bind;});
-    connect(ui->n_col_le, &QSpinBox::textChanged, [&](const QString &str){if (bindSizes) ui->n_row_le->setValue(mg->n_row);});
-    connect(ui->n_row_le, &QSpinBox::textChanged, [&](const QString &str){if (bindSizes) ui->n_col_le->setValue(mg->n_col);});
+    connect(ui->n_col_le, &QSpinBox::textChanged, [&](){if (bindSizes) ui->n_row_le->setValue(mg->n_row);});
+    connect(ui->n_row_le, &QSpinBox::textChanged, [&](){if (bindSizes) ui->n_col_le->setValue(mg->n_col);});
     connect(ui->step_sl, &QSlider::valueChanged, this, &MainWindow::StepChange);
     connect(ui->cur_step_sb, &QSpinBox::textChanged, [&](const QString &str) {StepChange(str.toInt());});
     connect(mg, &MazeGenerator::generated, this, &MainWindow::OnGenerate);
@@ -56,6 +56,10 @@ MainWindow::MainWindow(MazeGenerator *mg, QWidget *parent)
     connect(pf, &PathFinder::changed, mv, &MazeView::UpdatePathMode);
 
     connect(mg, &MazeGenerator::generated, pf, &PathFinder::ResetPoints);
+    connect(ui->clear_btn, &QPushButton::pressed, this, &MainWindow::ResetMaze);
+
+    connect(mv, &MazeView::sceneTimeChanged, [&](qint64 time){ui->scene_time_lbl->setText(QString::number(time/1000000.0,'f',2));});
+    connect(pf, &PathFinder::pathTimeChanged, [&](qint64 time){ui->find_time_lbl->setText(QString::number(time/1000000.0,'f',2));});
 
     maze_timer.setSingleShot(true);
 //    ui->widget->setStyleSheet("background-color: red");
@@ -66,6 +70,7 @@ MainWindow::MainWindow(MazeGenerator *mg, QWidget *parent)
     fps_timer.start();
 
     time_for_frames = std::vector<qint64>(kTimeFramesSize, 0);
+    ui->scene_time_lbl->setText(QString::number(mv->scene_time/1000000.0,'f',2));
 }
 
 MainWindow::~MainWindow()
@@ -103,6 +108,14 @@ void MainWindow::StartMazeTimer()
     maze_timer.start(timer_msec);
 }
 
+void MainWindow::ResetMaze()
+{
+    mg->Reset();
+    mv->Reload();
+    OnGenerate();
+    StepChange(0);
+}
+
 void MainWindow::OnGenerate()
 {
     int size = mg->steps.size();
@@ -119,6 +132,8 @@ void MainWindow::OnGenerate()
 
     ui->right_btn->setEnabled(false);
     ui->most_right_btn->setEnabled(false);
+
+    ui->gen_time_lbl->setText(QString::number(mg->gen_time / 1000000.0,'f',2));
 }
 
 void MainWindow::StepChange(int step)
